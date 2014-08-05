@@ -45,9 +45,9 @@ public class MyService extends WearableListenerService {
             DataMapItem dataMapItem = DataMapItem.fromDataItem(event.getDataItem());
             DataMap map = dataMapItem.getDataMap();
 
-            //access stuff off of the map and send to strap
-
-            //event.getDataItem
+            //TODO sync with Strap Metrics
+            //Basically, this should check if strap can handle the data map. If so, strap should
+            //handle the event, otherwise the user can handle it however they want.
 
 
 

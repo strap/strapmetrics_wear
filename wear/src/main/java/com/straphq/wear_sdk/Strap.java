@@ -1,6 +1,10 @@
 package com.straphq.wear_sdk;
 
 import android.app.Activity;
+import android.hardware.SensorEvent;
+import android.hardware.SensorEventListener;
+import android.hardware.SensorManager;
+import android.hardware.Sensor;
 import android.os.Bundle;
 import android.os.Looper;
 import android.support.wearable.view.WatchViewStub;
@@ -19,15 +23,34 @@ import java.util.concurrent.TimeUnit;
 
 import android.content.Context;
 
-public class Strap {
+public class Strap implements SensorEventListener {
 
     private GoogleApiClient mGoogleApiClient = null;
+    private SensorManager mSensorManager = null;
+    private Sensor mAccelerometer = null;
+    private static Strap strapManager = null;
 
-    Strap(GoogleApiClient apiClient) {
-        mGoogleApiClient = apiClient;
+    private float mXAxis;
+    private float mYAxis;
+    private float mZAxis;
+
+
+    //TODO finish singleton implementation
+    public static Strap getInstance() {
+        return strapManager;
     }
 
+    Strap(GoogleApiClient apiClient, SensorManager sensorManager) {
 
+        mGoogleApiClient = apiClient;
+        mSensorManager = sensorManager;
+
+        strapManager = this;
+
+        mAccelerometer = mSensorManager.getDefaultSensor(Sensor.TYPE_ACCELEROMETER);
+
+
+    }
 
     public void logEvent(String eventName) {
 
@@ -35,6 +58,7 @@ public class Strap {
         //create a new data map entry for this event
         PutDataMapRequest dataMap = PutDataMapRequest.create("/strap/" + new Date().toString());
         dataMap.getDataMap().putString("eventName", eventName);
+
 
         //sync the data
         PutDataRequest request = dataMap.asPutDataRequest();
@@ -50,5 +74,21 @@ public class Strap {
             }
         });
 
+    }
+
+    //Sensor listener override methods
+
+    @Override
+    public void onAccuracyChanged(Sensor sensor, int i) {
+        //TODO handling of accuracy changes
+    }
+
+    //Basic reading of the accelerometer. Just updates the member variables to the new values.
+    //If collecting a trend, something like a list/vector could be used to get deltas.
+    @Override
+    public void onSensorChanged(SensorEvent sensorEvent) {
+        mXAxis = sensorEvent.values[0];
+        mYAxis = sensorEvent.values[1];
+        mZAxis = sensorEvent.values[2];
     }
 }

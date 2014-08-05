@@ -1,6 +1,7 @@
 package com.straphq.wear_sdk;
 
 import android.app.Activity;
+import android.hardware.SensorManager;
 import android.os.Bundle;
 import android.support.wearable.view.WatchViewStub;
 import android.widget.TextView;
@@ -50,8 +51,9 @@ public class MyActivity extends Activity {
                         .build();
 
                 mGoogleApiClient.connect();
+                SensorManager sensor = (SensorManager)getSystemService(SENSOR_SERVICE);
 
-                Strap strap = new Strap(mGoogleApiClient);
+                Strap strap = new Strap(mGoogleApiClient, sensor);
                 strap.logEvent("blah");
             }
         });
