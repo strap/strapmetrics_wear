@@ -52,6 +52,9 @@ public class MyService extends WearableListenerService {
             Uri uri = event.getDataItem().getUri();
             DataMapItem dataMapItem = DataMapItem.fromDataItem(event.getDataItem());
             DataMap map = dataMapItem.getDataMap();
+
+            //can strap can handle the data map? If so, strap should
+            //handle the event, otherwise the user can handle it however they want.
             if (sm.canHandleMsg(event)) {
                 Log.d("DataEvent","Received new strapmetrics event!! " + map.toString());
                 try {
@@ -61,10 +64,7 @@ public class MyService extends WearableListenerService {
                 } catch (IOException e) {
                     e.printStackTrace();
                 }
-            } else {
-                Log.d("DataEvent","NOT a strapmetrics event!! " + map.toString());
             }
-
 
 //
 //
@@ -72,9 +72,7 @@ public class MyService extends WearableListenerService {
 //            Log.d("DataEvent","The URI is " + dataMapItem.getUri());
 //            Log.d("DataEvent","The URI segments " + dataMapItem.getUri().getPathSegments());
 //            Log.d("DataEvent","Received new Data Event from wearable! " + map.toString());
-            //TODO sync with Strap Metrics
-            //Basically, this should check if strap can handle the data map. If so, strap should
-            //handle the event, otherwise the user can handle it however they want.
+
 
 
 
