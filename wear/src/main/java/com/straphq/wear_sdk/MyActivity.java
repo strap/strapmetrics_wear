@@ -4,6 +4,8 @@ import android.app.Activity;
 import android.hardware.SensorManager;
 import android.os.Bundle;
 import android.support.wearable.view.WatchViewStub;
+import android.view.View;
+import android.widget.Button;
 import android.widget.TextView;
 
 import com.google.android.gms.common.ConnectionResult;
@@ -17,12 +19,18 @@ import android.content.Context;
 
 public class MyActivity extends Activity {
 
-    private TextView mTextView;
+    // TODO: Dynamically pull this from strings.xml. I couldn't get that to work. -@scald
+//  String strapAppID = this.getString(R.string.strap_app_id);
+    String strapAppID = "rdjYKgrfeAPeMSjQ4";
+    Strap strap = null;
 
+    private TextView mTextView;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_my);
+
+
         final WatchViewStub stub = (WatchViewStub) findViewById(R.id.watch_view_stub);
         stub.setOnLayoutInflatedListener(new WatchViewStub.OnLayoutInflatedListener() {
             @Override
@@ -53,9 +61,16 @@ public class MyActivity extends Activity {
                 mGoogleApiClient.connect();
                 SensorManager sensor = (SensorManager)getSystemService(SENSOR_SERVICE);
 
-                Strap strap = new Strap(mGoogleApiClient, sensor);
+                strap = new Strap(mGoogleApiClient, sensor, strapAppID);
+
                 strap.logEvent("blah");
+
+
             }
+
         });
+    }
+    public void handleButtonClick(View view) {
+        strap.logEvent("button-click");
     }
 }

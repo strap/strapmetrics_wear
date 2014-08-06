@@ -1,0 +1,59 @@
+<?xml version="1.0" encoding="utf-8"?>
+<pre-dex-items>
+
+    <item
+        dex="/Users/steve/Dropbox/Projects/strap/strapmetrics/sdk/private/sdk-wear-private/android-wear-playground/wear/build/intermediates/pre-dexed/debug/classes-678f7f85d9e01d7b44c1b5aae920ac4a900c8fd4.jar"
+        jar="/Users/steve/Dropbox/Projects/strap/strapmetrics/sdk/private/sdk-wear-private/android-wear-playground/wear/build/intermediates/exploded-aar/com.android.support/support-v4/20.0.0/classes.jar"
+        jumboMode="false"
+        revision="20.0.0"
+        sha1="8694693636ab36910c8100ce527c258ff3ebece0"/>
+    <item
+        dex="/Users/steve/Dropbox/Projects/strap/strapmetrics/sdk/private/sdk-wear-private/android-wear-playground/wear/build/intermediates/pre-dexed/debug/classes-9c8424003cce33c79756395a802383f0a8a96620.jar"
+        jar="/Users/steve/Dropbox/Projects/strap/strapmetrics/sdk/private/sdk-wear-private/android-wear-playground/wear/build/intermediates/exploded-aar/com.google.android.gms/play-services-wearable/5.0.77/classes.jar"
+        jumboMode="false"
+        revision="20.0.0"
+        sha1="80a6f6f2d0dfcfae8c424cf81dcdf7157e7bf4b8"/>
+    <item
+        dex="/Users/steve/Dropbox/Projects/strap/strapmetrics/sdk/private/sdk-wear-private/android-wear-playground/wear/build/intermediates/pre-dexed/debug/internal_impl-20.0.0-93edf77057cf9d38d22bfa006e0273d4cad1a6b6.jar"
+        jar="/Users/steve/Dropbox/Projects/strap/strapmetrics/sdk/private/sdk-wear-private/android-wear-playground/wear/build/intermediates/exploded-aar/com.android.support/support-v4/20.0.0/libs/internal_impl-20.0.0.jar"
+        jumboMode="false"
+        revision="20.0.0"
+        sha1="e40b3078e3fbd353c9f44da8df25a8fc0078209d"/>
+    <item
+        dex="/Users/steve/Dropbox/Projects/strap/strapmetrics/sdk/private/sdk-wear-private/android-wear-playground/wear/build/intermediates/pre-dexed/debug/support-annotations-20.0.0-bca9cd8c8082330ef7549e0398af852faae531fd.jar"
+        jar="/Applications/Android Studio.app/sdk/extras/android/m2repository/com/android/support/support-annotations/20.0.0/support-annotations-20.0.0.jar"
+        jumboMode="false"
+        revision="20.0.0"
+        sha1="9d9013e9ff35fc3756411e62873c363c70c638fa"/>
+    <item
+        dex="/Users/steve/Dropbox/Projects/strap/strapmetrics/sdk/private/sdk-wear-private/android-wear-playground/wear/build/intermediates/pre-dexed/debug/internal_impl-20.0.0-aa59dc12dbf92064a16b51ff9fc2c0674bf1bc4f.jar"
+        jar="/Users/steve/Dropbox/Projects/strap/strapmetrics/sdk/private/sdk-wear-private/android-wear-playground/wear/build/intermediates/exploded-aar/com.android.support/support-v13/20.0.0/libs/internal_impl-20.0.0.jar"
+        jumboMode="false"
+        revision="20.0.0"
+        sha1="27bbd3982cdfe4468a9bf99c8c773734a9049e33"/>
+    <item
+        dex="/Users/steve/Dropbox/Projects/strap/strapmetrics/sdk/private/sdk-wear-private/android-wear-playground/mobile/build/intermediates/pre-dexed/debug/support-v4-19.1.0-fe930dc68beb1e566675ce71b270d4091c6c249b.jar"
+        jar="/Applications/Android Studio.app/sdk/extras/android/m2repository/com/android/support/support-v4/19.1.0/support-v4-19.1.0.jar"
+        jumboMode="false"
+        revision="20.0.0"
+        sha1="85f201b380937e61a9dce6ca90ccf6872abbfb67"/>
+    <item
+        dex="/Users/steve/Dropbox/Projects/strap/strapmetrics/sdk/private/sdk-wear-private/android-wear-playground/wear/build/intermediates/pre-dexed/debug/classes-276ab2b5c6a7a38cf9155f6cbff7be6fb96d78a8.jar"
+        jar="/Users/steve/Dropbox/Projects/strap/strapmetrics/sdk/private/sdk-wear-private/android-wear-playground/wear/build/intermediates/exploded-aar/com.google.android.support/wearable/1.0.0/classes.jar"
+        jumboMode="false"
+        revision="20.0.0"
+        sha1="6804efbb78d7facc2e1aa107c7342bee83afae45"/>
+    <item
+        dex="/Users/steve/Dropbox/Projects/strap/strapmetrics/sdk/private/sdk-wear-private/android-wear-playground/mobile/build/intermediates/pre-dexed/debug/classes-cabd62351902dd6c1cd37f69bfe7ec1193a1e953.jar"
+        jar="/Users/steve/Dropbox/Projects/strap/strapmetrics/sdk/private/sdk-wear-private/android-wear-playground/mobile/build/intermediates/exploded-aar/com.google.android.gms/play-services-wearable/5.0.77/classes.jar"
+        jumboMode="false"
+        revision="20.0.0"
+        sha1="80a6f6f2d0dfcfae8c424cf81dcdf7157e7bf4b8"/>
+    <item
+        dex="/Users/steve/Dropbox/Projects/strap/strapmetrics/sdk/private/sdk-wear-private/android-wear-playground/wear/build/intermediates/pre-dexed/debug/classes-f33ed09f38e9dab20374e7f6f1be67c20a0b018f.jar"
+        jar="/Users/steve/Dropbox/Projects/strap/strapmetrics/sdk/private/sdk-wear-private/android-wear-playground/wear/build/intermediates/exploded-aar/com.android.support/support-v13/20.0.0/classes.jar"
+        jumboMode="false"
+        revision="20.0.0"
+        sha1="e128103d5281ddd26195a7f980b36d0d005a4e56"/>
+
+</pre-dex-items>

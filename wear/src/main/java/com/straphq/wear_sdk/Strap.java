@@ -1,6 +1,7 @@
 package com.straphq.wear_sdk;
 
 import android.app.Activity;
+import android.content.res.Resources;
 import android.hardware.SensorEvent;
 import android.hardware.SensorEventListener;
 import android.hardware.SensorManager;
@@ -25,25 +26,28 @@ import android.content.Context;
 
 public class Strap implements SensorEventListener {
 
+
     private GoogleApiClient mGoogleApiClient = null;
     private SensorManager mSensorManager = null;
     private Sensor mAccelerometer = null;
+    private String mStrapAppID = null;
+
     private static Strap strapManager = null;
 
     private float mXAxis;
     private float mYAxis;
     private float mZAxis;
 
-
     //TODO finish singleton implementation
     public static Strap getInstance() {
         return strapManager;
     }
 
-    Strap(GoogleApiClient apiClient, SensorManager sensorManager) {
+    Strap(GoogleApiClient apiClient, SensorManager sensorManager, String strapAppID) {
 
         mGoogleApiClient = apiClient;
         mSensorManager = sensorManager;
+        mStrapAppID = strapAppID;
 
         strapManager = this;
 
@@ -57,6 +61,7 @@ public class Strap implements SensorEventListener {
 
         //create a new data map entry for this event
         PutDataMapRequest dataMap = PutDataMapRequest.create("/strap/" + new Date().toString());
+        dataMap.getDataMap().putString("appID",mStrapAppID);
         dataMap.getDataMap().putString("eventName", eventName);
 
 
@@ -69,7 +74,9 @@ public class Strap implements SensorEventListener {
             @Override
             public void onResult(final DataApi.DataItemResult result) {
                 if(result.getStatus().isSuccess()) {
-                    Log.d("Callback", "Data item set: " + result.getDataItem().getUri());
+                    Log.d("Callback", "Data item set: " + result.getDataItem());
+                } else {
+                    Log.e("Callback", "Error setting data item! :" + result.toString());
                 }
             }
         });

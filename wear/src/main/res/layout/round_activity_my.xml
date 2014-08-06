@@ -5,12 +5,13 @@
     android:layout_height="match_parent"
     tools:context=".MyActivity"
     tools:deviceIds="wear_round">
-
-    <TextView
-        android:id="@+id/text"
+    <Button
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_centerHorizontal="true"
+        android:text="Easy"
+        android:id="@+id/button"
         android:layout_centerVertical="true"
-        android:text="@string/hello_round" />
+        android:layout_centerHorizontal="true"
+        android:background="@color/white"
+        android:onClick="handleButtonClick"/>
 </RelativeLayout>

@@ -5,9 +5,9 @@
     <option name="MODE" value="default_activity" />
     <option name="DEPLOY" value="true" />
     <option name="ARTIFACT_NAME" value="" />
-    <option name="TARGET_SELECTION_MODE" value="USB_DEVICE" />
+    <option name="TARGET_SELECTION_MODE" value="EMULATOR" />
     <option name="USE_LAST_SELECTED_DEVICE" value="false" />
-    <option name="PREFERRED_AVD" value="" />
+    <option name="PREFERRED_AVD" value="AVD_for_Android_Wear_Round_by_Google" />
     <option name="USE_COMMAND_LINE" value="true" />
     <option name="COMMAND_LINE" value="" />
     <option name="WIPE_USER_DATA" value="false" />
