@@ -9,6 +9,7 @@ import android.hardware.Sensor;
 import android.os.Bundle;
 import android.os.Looper;
 import android.support.wearable.view.WatchViewStub;
+import android.text.format.Time;
 import android.widget.TextView;
 
 import com.google.android.gms.common.ConnectionResult;
@@ -17,26 +18,33 @@ import com.google.android.gms.wearable.*;
 import com.google.android.gms.common.api.*;
 import com.google.android.gms.common.api.GoogleApiClient.ConnectionCallbacks;
 import android.util.Log;
+
+import java.io.ByteArrayOutputStream;
+import java.io.ObjectOutputStream;
 import java.util.Date;
+import java.util.ArrayList;
 import com.google.android.gms.common.api.GoogleApiClient.OnConnectionFailedListener;
 
 import java.util.concurrent.TimeUnit;
 
 import android.content.Context;
 
+
 public class Strap implements SensorEventListener {
 
 
+    //members
     private GoogleApiClient mGoogleApiClient = null;
     private SensorManager mSensorManager = null;
     private Sensor mAccelerometer = null;
     private String mStrapAppID = null;
+    private ArrayList<DataMap> accelDataMapList = null;
 
     private static Strap strapManager = null;
 
-    private float mXAxis;
-    private float mYAxis;
-    private float mZAxis;
+    //constants
+    private int kMaxAccelLength = 100;
+
 
     //TODO finish singleton implementation
     public static Strap getInstance() {
@@ -52,7 +60,7 @@ public class Strap implements SensorEventListener {
         strapManager = this;
 
         mAccelerometer = mSensorManager.getDefaultSensor(Sensor.TYPE_ACCELEROMETER);
-
+        accelDataMapList = new ArrayList<DataMap>();
 
     }
 
@@ -63,6 +71,9 @@ public class Strap implements SensorEventListener {
         PutDataMapRequest dataMap = PutDataMapRequest.create("/strap/" + new Date().toString());
         dataMap.getDataMap().putString("appID",mStrapAppID);
         dataMap.getDataMap().putString("eventName", eventName);
+        if(accelDataMapList.size() > kMaxAccelLength ) {
+            dataMap.getDataMap().putDataMapArrayList("accelData", accelDataMapList);
+        }
 
 
         //sync the data
@@ -83,6 +94,18 @@ public class Strap implements SensorEventListener {
 
     }
 
+    private DataMap buildAccelData(float [] coords) {
+        DataMap accelDataMap = new DataMap();
+        accelDataMap.putFloatArray("coordinates", coords);
+
+        Time currentTime = new Time();
+        currentTime.setToNow();
+
+        accelDataMap.putString("time", currentTime.toString());
+
+        return accelDataMap;
+    }
+
     //Sensor listener override methods
 
     @Override
@@ -90,12 +113,17 @@ public class Strap implements SensorEventListener {
         //TODO handling of accuracy changes
     }
 
+    //TODO I don't think Android lets you query periodically. Just on changes
+
     //Basic reading of the accelerometer. Just updates the member variables to the new values.
     //If collecting a trend, something like a list/vector could be used to get deltas.
     @Override
     public void onSensorChanged(SensorEvent sensorEvent) {
-        mXAxis = sensorEvent.values[0];
-        mYAxis = sensorEvent.values[1];
-        mZAxis = sensorEvent.values[2];
+
+
+        DataMap accelData = buildAccelData(sensorEvent.values);
+
+        accelDataMapList.add(accelData);
+
     }
 }
