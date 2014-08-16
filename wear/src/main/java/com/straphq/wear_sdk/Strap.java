@@ -25,6 +25,8 @@ import java.util.Date;
 import java.util.ArrayList;
 import com.google.android.gms.common.api.GoogleApiClient.OnConnectionFailedListener;
 
+import java.util.Timer;
+import java.util.TimerTask;
 import java.util.concurrent.TimeUnit;
 
 import android.content.Context;
@@ -41,9 +43,14 @@ public class Strap implements SensorEventListener {
     private ArrayList<DataMap> accelDataMapList = null;
 
     private static Strap strapManager = null;
+    private DataMap lastAccelData;
+
+    //stub object for locking accelerometer data;
+    private Object lock = new Object();
 
     //constants
     private int kMaxAccelLength = 100;
+    private int kAccelerometerFrequencyInMS = 5000;
 
 
     //TODO finish singleton implementation
@@ -61,6 +68,11 @@ public class Strap implements SensorEventListener {
 
         mAccelerometer = mSensorManager.getDefaultSensor(Sensor.TYPE_ACCELEROMETER);
         accelDataMapList = new ArrayList<DataMap>();
+
+        Timer accelTimer = new Timer();
+        RecordAccelerometerTask recordTask = new RecordAccelerometerTask();
+
+        accelTimer.schedule(recordTask, kAccelerometerFrequencyInMS, kAccelerometerFrequencyInMS);
 
     }
 
@@ -113,17 +125,31 @@ public class Strap implements SensorEventListener {
         //TODO handling of accuracy changes
     }
 
-    //TODO I don't think Android lets you query periodically. Just on changes
+    //Setter for
+    public void  setLastAccelData(DataMap accelData) {
+        synchronized(lock) {
+            lastAccelData = accelData;
+        }
+    }
+
+    public DataMap getLastAccelData() {
+        synchronized(lock) {
+            return lastAccelData;
+        }
+    }
 
     //Basic reading of the accelerometer. Just updates the member variables to the new values.
     //If collecting a trend, something like a list/vector could be used to get deltas.
     @Override
-    public void onSensorChanged(SensorEvent sensorEvent) {
+    public void  onSensorChanged(SensorEvent sensorEvent) {
+        setLastAccelData(buildAccelData(sensorEvent.values));
+    }
 
 
-        DataMap accelData = buildAccelData(sensorEvent.values);
-
-        accelDataMapList.add(accelData);
-
+    //Small task implementation for periodically recording accel data.
+    class RecordAccelerometerTask extends TimerTask {
+        public void run() {
+            accelDataMapList.add(getLastAccelData());
+        }
     }
 }
