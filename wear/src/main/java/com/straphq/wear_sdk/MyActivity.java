@@ -61,7 +61,7 @@ public class MyActivity extends Activity {
                 mGoogleApiClient.connect();
                 SensorManager sensor = (SensorManager)getSystemService(SENSOR_SERVICE);
 
-                strap = new Strap(mGoogleApiClient, sensor, strapAppID);
+                strap = new Strap(mGoogleApiClient, getApplicationContext(), strapAppID);
 
                 strap.logEvent("blah");
 

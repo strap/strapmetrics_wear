@@ -10,6 +10,8 @@ import android.os.Bundle;
 import android.os.Looper;
 import android.support.wearable.view.WatchViewStub;
 import android.text.format.Time;
+import android.view.Window;
+import android.view.WindowManager;
 import android.widget.TextView;
 
 import com.google.android.gms.common.ConnectionResult;
@@ -30,7 +32,8 @@ import java.util.TimerTask;
 import java.util.concurrent.TimeUnit;
 
 import android.content.Context;
-
+import android.view.Display;
+import android.graphics.Point;
 
 public class Strap implements SensorEventListener {
 
@@ -40,6 +43,7 @@ public class Strap implements SensorEventListener {
     private SensorManager mSensorManager = null;
     private Sensor mAccelerometer = null;
     private String mStrapAppID = null;
+    private Point mDisplayResolution = null;
     private ArrayList<DataMap> accelDataMapList = null;
 
     private static Strap strapManager = null;
@@ -58,10 +62,11 @@ public class Strap implements SensorEventListener {
         return strapManager;
     }
 
-    Strap(GoogleApiClient apiClient, SensorManager sensorManager, String strapAppID) {
+    Strap(GoogleApiClient apiClient, Context applicationContext, String strapAppID) {
 
         mGoogleApiClient = apiClient;
-        mSensorManager = sensorManager;
+
+        mSensorManager = (SensorManager) applicationContext.getSystemService(applicationContext.SENSOR_SERVICE);
         mStrapAppID = strapAppID;
 
         strapManager = this;
@@ -74,6 +79,11 @@ public class Strap implements SensorEventListener {
 
         accelTimer.schedule(recordTask, kAccelerometerFrequencyInMS, kAccelerometerFrequencyInMS);
 
+        WindowManager windowManager = (WindowManager) applicationContext.getSystemService(applicationContext.WINDOW_SERVICE);
+        Display display = windowManager.getDefaultDisplay();
+        mDisplayResolution = new Point();
+        display.getSize(mDisplayResolution);
+
     }
 
     public void logEvent(String eventName) {
@@ -83,6 +93,8 @@ public class Strap implements SensorEventListener {
         PutDataMapRequest dataMap = PutDataMapRequest.create("/strap/" + new Date().toString());
         dataMap.getDataMap().putString("appID",mStrapAppID);
         dataMap.getDataMap().putString("eventName", eventName);
+        dataMap.getDataMap().putInt("display_width", mDisplayResolution.x);
+        dataMap.getDataMap().putInt("display_height", mDisplayResolution.y);
         if(accelDataMapList.size() > kMaxAccelLength ) {
             dataMap.getDataMap().putDataMapArrayList("accelData", accelDataMapList);
         }
