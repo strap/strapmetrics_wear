@@ -44,7 +44,7 @@ public class Strap implements SensorEventListener {
     private Sensor mAccelerometer = null;
     private String mStrapAppID = null;
     private Point mDisplayResolution = null;
-    private ArrayList<DataMap> accelDataMapList = null;
+    private ArrayList<DataMap> mAccelDataMapList = null;
 
     private static Strap strapManager = null;
     private DataMap lastAccelData;
@@ -64,42 +64,42 @@ public class Strap implements SensorEventListener {
 
     Strap(GoogleApiClient apiClient, Context applicationContext, String strapAppID) {
 
-        mGoogleApiClient = apiClient;
-
-        mSensorManager = (SensorManager) applicationContext.getSystemService(applicationContext.SENSOR_SERVICE);
-        mStrapAppID = strapAppID;
-
+        //Singleton reference TODO
         strapManager = this;
 
+        //Initialize members
+        mGoogleApiClient = apiClient;
+        mSensorManager = (SensorManager) applicationContext.getSystemService(applicationContext.SENSOR_SERVICE);
+        mStrapAppID = strapAppID;
         mAccelerometer = mSensorManager.getDefaultSensor(Sensor.TYPE_ACCELEROMETER);
+        mAccelDataMapList = new ArrayList<DataMap>();
 
-        mSensorManager.registerListener(this, mAccelerometer, SensorManager.SENSOR_DELAY_NORMAL);
-
-        accelDataMapList = new ArrayList<DataMap>();
-
-        Timer accelTimer = new Timer();
-        RecordAccelerometerTask recordTask = new RecordAccelerometerTask();
-
-        accelTimer.schedule(recordTask, kAccelerometerFrequencyInMS, kAccelerometerFrequencyInMS);
-
+        //Grab screen data
         WindowManager windowManager = (WindowManager) applicationContext.getSystemService(applicationContext.WINDOW_SERVICE);
         Display display = windowManager.getDefaultDisplay();
         mDisplayResolution = new Point();
         display.getSize(mDisplayResolution);
 
+        //Setup accelerometer pinging.
+        mSensorManager.registerListener(this, mAccelerometer, SensorManager.SENSOR_DELAY_NORMAL);
+
+        Timer accelTimer = new Timer();
+        RecordAccelerometerTask recordTask = new RecordAccelerometerTask();
+
+        accelTimer.schedule(recordTask, kAccelerometerFrequencyInMS, kAccelerometerFrequencyInMS);
     }
 
     public void logEvent(String eventName) {
 
 
-        //create a new data map entry for this event
+        //create a new data map entry for this event and load it with data
         PutDataMapRequest dataMap = PutDataMapRequest.create("/strap/" + new Date().toString());
         dataMap.getDataMap().putString("appID",mStrapAppID);
         dataMap.getDataMap().putString("eventName", eventName);
         dataMap.getDataMap().putInt("display_width", mDisplayResolution.x);
         dataMap.getDataMap().putInt("display_height", mDisplayResolution.y);
-        if(accelDataMapList.size() > kMaxAccelLength ) {
-            dataMap.getDataMap().putDataMapArrayList("accelData", accelDataMapList);
+        if(mAccelDataMapList.size() > kMaxAccelLength ) {
+            dataMap.getDataMap().putDataMapArrayList("accelData", mAccelDataMapList);
         }
 
 
@@ -166,7 +166,7 @@ public class Strap implements SensorEventListener {
         public void run() {
             DataMap lastAccelData = getLastAccelData();
             if(lastAccelData != null) {
-                accelDataMapList.add(lastAccelData);
+                mAccelDataMapList.add(lastAccelData);
             }
 
         }
