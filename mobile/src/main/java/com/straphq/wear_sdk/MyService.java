@@ -58,7 +58,7 @@ public class MyService extends WearableListenerService {
             if (sm.canHandleMsg(event)) {
                 Log.d("DataEvent","Received new strapmetrics event!! " + map.toString());
                 try {
-                    sm.processReceiveData(event);
+                    sm.processReceiveData(map);
                 } catch (JSONException e) {
                     e.printStackTrace();
                 } catch (IOException e) {

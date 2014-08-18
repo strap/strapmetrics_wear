@@ -72,6 +72,9 @@ public class Strap implements SensorEventListener {
         strapManager = this;
 
         mAccelerometer = mSensorManager.getDefaultSensor(Sensor.TYPE_ACCELEROMETER);
+
+        mSensorManager.registerListener(this, mAccelerometer, SensorManager.SENSOR_DELAY_NORMAL);
+
         accelDataMapList = new ArrayList<DataMap>();
 
         Timer accelTimer = new Timer();
@@ -161,7 +164,11 @@ public class Strap implements SensorEventListener {
     //Small task implementation for periodically recording accel data.
     class RecordAccelerometerTask extends TimerTask {
         public void run() {
-            accelDataMapList.add(getLastAccelData());
+            DataMap lastAccelData = getLastAccelData();
+            if(lastAccelData != null) {
+                accelDataMapList.add(lastAccelData);
+            }
+
         }
     }
 }

@@ -73,35 +73,40 @@ public class StrapMetrics {
     }
 
 
-    public void processReceiveData(DataEvent data) throws JSONException, IOException {
+    public void processReceiveData(DataMap map) throws JSONException, IOException {
         String query;
 
         String serial = null;
 
-        DataMapItem dataMapItem = DataMapItem.fromDataItem(data.getDataItem());
-        DataMap map = dataMapItem.getDataMap();
+        //DataMapItem dataMapItem = DataMapItem.fromDataItem(data.getDataItem());
+       // DataMap map = dataMapItem.getDataMap();
 
         final Properties lp = new Properties();
-        lp.put("resolution", "UNK");
+        String resolution = "UNK";
+        if(map.containsKey("display_width") && map.containsKey("display_height")) {
+            resolution = map.getInt("display_width") + "x" + map.getInt("display_height");
+        }
+        lp.put("resolution", resolution);
         lp.put("useragent", "WEAR/1.0");
 
         int min_readings = 200;
-
+        /*
         try {
             Class<?> c = Class.forName("android.os.SystemProperties");
             Method get = c.getMethod("get", String.class);
             serial = (String) get.invoke(c, "ro.serialno");
         } catch (Exception ignored) {
-        }
+        }*/
+
 
 
         String key = "eventName";
         if(!map.containsKey(key)) {
-            JSONArray convData = StrapMetrics.convAcclData(data);
+            //JSONArray convData = StrapMetrics.convAcclData(data);
 
-            concatJSONArrays(tmpstore, convData);
+            //concatJSONArrays(tmpstore, convData);
 
-            if(tmpstore.length() > min_readings) {
+            if(tmpstore.length() > min_readings || true) {
 
 
                 query = "app_id=" + appID

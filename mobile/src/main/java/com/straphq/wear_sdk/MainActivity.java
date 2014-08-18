@@ -17,6 +17,10 @@ import android.content.Context;
 import android.widget.Toast;
 import android.content.Intent;
 
+import org.json.JSONException;
+
+import java.io.IOException;
+
 
 public class MainActivity extends Activity {
 
@@ -50,6 +54,18 @@ public class MainActivity extends Activity {
                 .addApi(Wearable.API)
                 .build();
         mGoogleApiClient.connect();
+
+        StrapMetrics strap = new StrapMetrics();
+
+        /*
+        try {
+            strap.processReceiveData();
+        } catch (JSONException e) {
+            e.printStackTrace();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }*/
+        //strap.processReceiveData();
     }
 
 
