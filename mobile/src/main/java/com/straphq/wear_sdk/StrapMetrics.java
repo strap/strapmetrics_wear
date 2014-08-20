@@ -16,6 +16,7 @@ import java.util.GregorianCalendar;
 import java.util.Properties;
 import java.util.TimeZone;
 import java.util.concurrent.TimeUnit;
+import java.util.ArrayList;
 
 
 
@@ -44,15 +45,19 @@ public class StrapMetrics {
     long tz_offset = TimeUnit.HOURS.convert(mGMTOffset, TimeUnit.MILLISECONDS);
 
 
-    private JSONArray tmpstore = new JSONArray();
+    private static JSONArray tmpstore = new JSONArray();
+
+    private static StrapMetrics instance = null;
 
     public StrapMetrics() {
+
     }
 
-    private void concatJSONArrays(JSONArray result, JSONArray tmp) throws JSONException {
+
+    private void concatJSONArrays(JSONArray tmp) throws JSONException {
         // append the values in tmp to the result JSONArray
         for (int i = 0; i < tmp.length(); i++) {
-            result.put(tmp.getJSONObject(i));
+            tmpstore.put(tmp.getJSONObject(i));
         }
     }
 
@@ -102,12 +107,12 @@ public class StrapMetrics {
 
 
         String key = "eventName";
-        if(!map.containsKey(key)) {
-            //JSONArray convData = StrapMetrics.convAcclData(data);
+        if(!map.containsKey(key) || map.getString(key) == "") {
+            JSONArray convData = StrapMetrics.convAcclData(map);
 
-            //concatJSONArrays(tmpstore, convData);
+            concatJSONArrays(convData);
 
-            if(tmpstore.length() > min_readings || true) {
+            if(tmpstore.length() > min_readings) {
 
 
                 query = "app_id=" + lp.getProperty("appId")
@@ -155,8 +160,25 @@ public class StrapMetrics {
         }
     }
 
-    public static JSONArray convAcclData(DataEvent data) throws JSONException {
+    public static JSONArray convAcclData(DataMap data) throws JSONException {
         JSONArray convData = new JSONArray();
+        //JB_TODO finish this
+        ArrayList<DataMap> accelDataEvents = data.getDataMapArrayList("accelData");
+
+        for(int i = 0; i < accelDataEvents.size(); i++) {
+            DataMap accelEvent = accelDataEvents.get(i);
+            JSONObject ad = new JSONObject();
+            float[] coords = accelEvent.getFloatArray("coordinates");
+
+            ad.put("x", coords[0]);
+            ad.put("y", coords[1]);
+            ad.put("z", coords[2]);
+
+            convData.put(ad);
+
+        }
+
+
 
 //        int key = KEY_OFFSET + T_TIME_BASE;
 //        long time_base = Long.parseLong(data.getString(key));

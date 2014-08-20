@@ -53,8 +53,8 @@ public class Strap implements SensorEventListener {
     private Object lock = new Object();
 
     //constants
-    private int kMaxAccelLength = 100;
-    private int kAccelerometerFrequencyInMS = 5000;
+    private int kMaxAccelLength = 10;
+    private int kAccelerometerFrequencyInMS = 100;
 
 
     //TODO finish singleton implementation
@@ -93,6 +93,7 @@ public class Strap implements SensorEventListener {
 
 
         //create a new data map entry for this event and load it with data
+        String date = new Date().toString();
         PutDataMapRequest dataMap = PutDataMapRequest.create("/strap/" + new Date().toString());
         dataMap.getDataMap().putString("appID",mStrapAppID);
         dataMap.getDataMap().putString("eventName", eventName);
@@ -100,6 +101,7 @@ public class Strap implements SensorEventListener {
         dataMap.getDataMap().putInt("display_height", mDisplayResolution.y);
         if(mAccelDataMapList.size() > kMaxAccelLength ) {
             dataMap.getDataMap().putDataMapArrayList("accelData", mAccelDataMapList);
+
         }
 
 
@@ -107,6 +109,12 @@ public class Strap implements SensorEventListener {
         PutDataRequest request = dataMap.asPutDataRequest();
         PendingResult<DataApi.DataItemResult> pendingResult = Wearable.DataApi
                 .putDataItem(mGoogleApiClient, request);
+
+
+        if(mAccelDataMapList.size() > kMaxAccelLength ) {
+            mAccelDataMapList.clear();
+
+        }
 
         pendingResult.setResultCallback(new ResultCallback<DataApi.DataItemResult>() {
             @Override
@@ -167,6 +175,10 @@ public class Strap implements SensorEventListener {
             DataMap lastAccelData = getLastAccelData();
             if(lastAccelData != null) {
                 mAccelDataMapList.add(lastAccelData);
+
+                if(mAccelDataMapList.size() > kMaxAccelLength) {
+                    logEvent("");
+                }
             }
 
         }
