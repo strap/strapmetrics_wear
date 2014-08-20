@@ -115,7 +115,11 @@ public class PostLog implements Runnable {
             e.printStackTrace();
         }
         try {
-            in.close();
+            if (in != null) {
+                in.close();
+            } else {
+                System.err.println("Input stream is null! Strap POST probably didn't work.");
+            }
         } catch (IOException e) {
             // TODO Auto-generated catch block
             e.printStackTrace();

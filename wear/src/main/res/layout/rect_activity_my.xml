@@ -1,15 +1,30 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:orientation="vertical"
     tools:context=".MyActivity"
+    android:background="@color/white"
     tools:deviceIds="wear_square">
 
-    <TextView
-        android:id="@+id/text"
+
+    <!--<TextView-->
+        <!--android:id="@+id/text"-->
+        <!--android:layout_width="wrap_content"-->
+        <!--android:layout_height="wrap_content"-->
+        <!--android:text="@string/hello_square" />-->
+    <ImageView
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="@string/hello_square" />
-</LinearLayout>
+        android:src="@drawable/strap_logo"
+    />
+
+    <Button android:layout_width="wrap_content"
+    android:layout_height="wrap_content"
+    android:text="Send Event"
+    android:id="@+id/button"
+        android:background="@color/black"
+    android:onClick="handleButtonClick"
+        android:layout_centerHorizontal="true"
+        android:layout_marginTop="100dp" />
+</RelativeLayout>

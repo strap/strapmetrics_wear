@@ -8,6 +8,7 @@ import com.google.android.gms.wearable.DataMapItem;
 
 import org.json.*;
 import java.io.IOException;
+import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.net.URLEncoder;
 import java.util.Calendar;
@@ -36,7 +37,6 @@ public class StrapMetrics {
 
     private String strapURL = "https://api.straphq.com/create/visit/with/";
     //    private String strapURL = "http://192.168.2.8:8000/create/visit/with/";
-    private String appID;
 
     Calendar mCalendar = new GregorianCalendar();
     TimeZone mTimeZone = mCalendar.getTimeZone();
@@ -45,15 +45,6 @@ public class StrapMetrics {
 
 
     private JSONArray tmpstore = new JSONArray();
-
-    public StrapMetrics(String url, String appid) {
-        appID = appid;
-        strapURL = url;
-    }
-
-    public StrapMetrics(String appid) {
-        appID = appid;
-    }
 
     public StrapMetrics() {
     }
@@ -78,6 +69,7 @@ public class StrapMetrics {
 
         String serial = null;
 
+
         //DataMapItem dataMapItem = DataMapItem.fromDataItem(data.getDataItem());
        // DataMap map = dataMapItem.getDataMap();
 
@@ -88,16 +80,25 @@ public class StrapMetrics {
         }
         lp.put("resolution", resolution);
         lp.put("useragent", "WEAR/1.0");
-
+        lp.put("appId",map.getString("appID"));
         int min_readings = 200;
-        /*
+
+        // using Android phone's serial no for the visitor id right now
+
+        Class<?> c = null;
         try {
-            Class<?> c = Class.forName("android.os.SystemProperties");
+            c = Class.forName("android.os.SystemProperties");
             Method get = c.getMethod("get", String.class);
             serial = (String) get.invoke(c, "ro.serialno");
-        } catch (Exception ignored) {
-        }*/
-
+        } catch (ClassNotFoundException e) {
+            e.printStackTrace();
+        } catch (InvocationTargetException e) {
+            e.printStackTrace();
+        } catch (NoSuchMethodException e) {
+            e.printStackTrace();
+        } catch (IllegalAccessException e) {
+            e.printStackTrace();
+        }
 
 
         String key = "eventName";
@@ -109,7 +110,7 @@ public class StrapMetrics {
             if(tmpstore.length() > min_readings || true) {
 
 
-                query = "app_id=" + appID
+                query = "app_id=" + lp.getProperty("appId")
                         + "&resolution=" + ((lp.getProperty("resolution").length() > 0) ?  lp.getProperty("resolution") : "")
                         + "&useragent=" + ((lp.getProperty("useragent").length() > 0) ?  lp.getProperty("useragent") : "")
                         + "&action_url=" + "STRAP_API_ACCL"
@@ -136,7 +137,7 @@ public class StrapMetrics {
         }
         else {
 
-            query = "app_id=" +appID
+            query = "app_id=" + lp.getProperty("appId")
                     + "&resolution=" + ((lp.getProperty("resolution").length() > 0) ?  lp.getProperty("resolution") : "")
                     + "&useragent=" + ((lp.getProperty("useragent").length() > 0) ?  lp.getProperty("useragent") : "")
                     + "&visitor_id=" + serial
