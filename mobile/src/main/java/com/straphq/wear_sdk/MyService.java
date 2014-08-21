@@ -60,6 +60,7 @@ public class MyService extends WearableListenerService {
                 try {
                     sm.processReceiveData(map);
 
+
                 } catch (JSONException e) {
                     e.printStackTrace();
                 } catch (IOException e) {
@@ -67,19 +68,13 @@ public class MyService extends WearableListenerService {
                 }
             }
 
-
-
-//
-//
 //
 //            Log.d("DataEvent","The URI is " + dataMapItem.getUri());
 //            Log.d("DataEvent","The URI segments " + dataMapItem.getUri().getPathSegments());
 //            Log.d("DataEvent","Received new Data Event from wearable! " + map.toString());
 
-
-
-
         }
+        dataEvents.release();
     }
 
 }

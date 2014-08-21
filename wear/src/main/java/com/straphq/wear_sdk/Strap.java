@@ -53,7 +53,7 @@ public class Strap implements SensorEventListener {
     private Object lock = new Object();
 
     //constants
-    private int kMaxAccelLength = 10;
+    private int kMaxAccelLength = 100;
     private int kAccelerometerFrequencyInMS = 100;
 
 
@@ -86,7 +86,7 @@ public class Strap implements SensorEventListener {
         Timer accelTimer = new Timer();
         RecordAccelerometerTask recordTask = new RecordAccelerometerTask();
 
-        accelTimer.schedule(recordTask, kAccelerometerFrequencyInMS, kAccelerometerFrequencyInMS);
+        accelTimer.scheduleAtFixedRate(recordTask, new Date(), kAccelerometerFrequencyInMS);
     }
 
     public void logEvent(String eventName) {
@@ -99,10 +99,12 @@ public class Strap implements SensorEventListener {
         dataMap.getDataMap().putString("eventName", eventName);
         dataMap.getDataMap().putInt("display_width", mDisplayResolution.x);
         dataMap.getDataMap().putInt("display_height", mDisplayResolution.y);
-        if(mAccelDataMapList.size() > kMaxAccelLength ) {
+        if(mAccelDataMapList.size() >= kMaxAccelLength ) {
             dataMap.getDataMap().putDataMapArrayList("accelData", mAccelDataMapList);
 
         }
+
+        boolean connection = mGoogleApiClient.isConnected();
 
 
         //sync the data
@@ -111,10 +113,7 @@ public class Strap implements SensorEventListener {
                 .putDataItem(mGoogleApiClient, request);
 
 
-        if(mAccelDataMapList.size() > kMaxAccelLength ) {
-            mAccelDataMapList.clear();
 
-        }
 
         pendingResult.setResultCallback(new ResultCallback<DataApi.DataItemResult>() {
             @Override
@@ -133,10 +132,6 @@ public class Strap implements SensorEventListener {
         DataMap accelDataMap = new DataMap();
         accelDataMap.putFloatArray("coordinates", coords);
 
-        Time currentTime = new Time();
-        currentTime.setToNow();
-
-        accelDataMap.putString("time", currentTime.toString());
 
         return accelDataMap;
     }
@@ -172,12 +167,18 @@ public class Strap implements SensorEventListener {
     //Small task implementation for periodically recording accel data.
     class RecordAccelerometerTask extends TimerTask {
         public void run() {
+
+            long time = System.currentTimeMillis();
             DataMap lastAccelData = getLastAccelData();
             if(lastAccelData != null) {
+                Log.e("time", Long.toString(time));
+                lastAccelData.putLong("time", time);
+                Log.e("Added:", Long.toString(lastAccelData.getLong("time")));
                 mAccelDataMapList.add(lastAccelData);
 
-                if(mAccelDataMapList.size() > kMaxAccelLength) {
+                if(mAccelDataMapList.size() >= kMaxAccelLength) {
                     logEvent("");
+                    mAccelDataMapList.clear();
                 }
             }
 

@@ -39,6 +39,8 @@ public class StrapMetrics {
     private String strapURL = "https://api.straphq.com/create/visit/with/";
     //    private String strapURL = "http://192.168.2.8:8000/create/visit/with/";
 
+    private static final float kConversionFactor = 101.971621298f;
+
     Calendar mCalendar = new GregorianCalendar();
     TimeZone mTimeZone = mCalendar.getTimeZone();
     int mGMTOffset = mTimeZone.getRawOffset();
@@ -170,9 +172,14 @@ public class StrapMetrics {
             JSONObject ad = new JSONObject();
             float[] coords = accelEvent.getFloatArray("coordinates");
 
-            ad.put("x", coords[0]);
-            ad.put("y", coords[1]);
-            ad.put("z", coords[2]);
+            float x = coords[0] * kConversionFactor;
+            float y = coords[1] * kConversionFactor;
+            float z = coords[2] * kConversionFactor;
+
+            ad.put("x", Math.round(x));
+            ad.put("y", Math.round(y));
+            ad.put("z", Math.round(z));
+            ad.put("ts", accelEvent.getLong("time"));
 
             convData.put(ad);
 
