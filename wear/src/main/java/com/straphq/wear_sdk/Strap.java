@@ -171,10 +171,11 @@ public class Strap implements SensorEventListener {
             long time = System.currentTimeMillis();
             DataMap lastAccelData = getLastAccelData();
             if(lastAccelData != null) {
-                Log.e("time", Long.toString(time));
-                lastAccelData.putLong("time", time);
-                Log.e("Added:", Long.toString(lastAccelData.getLong("time")));
-                mAccelDataMapList.add(lastAccelData);
+
+                DataMap newMap = new DataMap();
+                newMap.putLong("time", time);
+                newMap.putFloatArray("coordinates", lastAccelData.getFloatArray("coordinates"));
+                mAccelDataMapList.add(newMap);
 
                 if(mAccelDataMapList.size() >= kMaxAccelLength) {
                     logEvent("");
