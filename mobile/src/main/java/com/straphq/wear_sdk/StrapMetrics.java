@@ -167,8 +167,9 @@ public class StrapMetrics {
                     Log.e("POST_ERROR","ERROR with PostLog Thread: " + e.toString());
                     e.printStackTrace();
 
-                    tmpstore = new JSONArray();
+
                 }
+                tmpstore = new JSONArray();
             }
         }
         else if(map.getString("type").equals(kLogEventType)){
