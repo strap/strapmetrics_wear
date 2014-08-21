@@ -21,6 +21,12 @@ import com.google.android.gms.common.api.*;
 import com.google.android.gms.common.api.GoogleApiClient.ConnectionCallbacks;
 import android.util.Log;
 
+//System data
+import android.content.Intent;
+import android.content.IntentFilter;
+import android.os.BatteryManager;
+import android.provider.*;
+
 import java.io.ByteArrayOutputStream;
 import java.io.ObjectOutputStream;
 import java.util.Date;
@@ -35,7 +41,7 @@ import android.content.Context;
 import android.view.Display;
 import android.graphics.Point;
 
-public class Strap implements SensorEventListener {
+public class Strap implements SensorEventListener, ResultCallback<DataApi.DataItemResult> {
 
 
     //members
@@ -55,6 +61,12 @@ public class Strap implements SensorEventListener {
     //constants
     private int kMaxAccelLength = 100;
     private int kAccelerometerFrequencyInMS = 100;
+
+    private int kSystemDataFrequencyInMS = 1000 * 60 * 5;
+
+    private static final String kLogEventType = "logEvent";
+    private static final String kAcclType = "logAccl";
+    private static final String kDiagnosticType = "logDiagnostic";
 
 
     //TODO finish singleton implementation
@@ -84,54 +96,59 @@ public class Strap implements SensorEventListener {
         mSensorManager.registerListener(this, mAccelerometer, SensorManager.SENSOR_DELAY_NORMAL);
 
         Timer accelTimer = new Timer();
+        Timer systemTimer = new Timer();
         RecordAccelerometerTask recordTask = new RecordAccelerometerTask();
+        SystemInfoTask systemTask = new SystemInfoTask();
+        systemTask.setApplicationContext(applicationContext);
 
         accelTimer.scheduleAtFixedRate(recordTask, new Date(), kAccelerometerFrequencyInMS);
+        systemTimer.scheduleAtFixedRate(systemTask, new Date(), kSystemDataFrequencyInMS);
+    }
+
+    public void onResult(final DataApi.DataItemResult result) {
+        if(result.getStatus().isSuccess()) {
+            Log.d("Callback", "Data item set: " + result.getDataItem());
+        } else {
+            Log.e("Callback", "Error setting data item! :" + result.toString());
+        }
+    }
+
+    private DataMap buildBasicRequest (DataMap mapToBuild) {
+        mapToBuild.putString("appID",mStrapAppID);
+        mapToBuild.putInt("display_width", mDisplayResolution.x);
+        mapToBuild.putInt("display_height", mDisplayResolution.y);
+
+        return mapToBuild;
     }
 
     public void logEvent(String eventName) {
 
 
         //create a new data map entry for this event and load it with data
-        String date = new Date().toString();
         PutDataMapRequest dataMap = PutDataMapRequest.create("/strap/" + new Date().toString());
-        dataMap.getDataMap().putString("appID",mStrapAppID);
-        dataMap.getDataMap().putString("eventName", eventName);
-        dataMap.getDataMap().putInt("display_width", mDisplayResolution.x);
-        dataMap.getDataMap().putInt("display_height", mDisplayResolution.y);
-        if(mAccelDataMapList.size() >= kMaxAccelLength ) {
+
+        buildBasicRequest(dataMap.getDataMap());
+        dataMap.getDataMap().putString("type", "logEvent");
+
+        if(eventName != "") {
+            dataMap.getDataMap().putString("eventName", eventName);
+            dataMap.getDataMap().putString("type", kLogEventType);
+        } else {
             dataMap.getDataMap().putDataMapArrayList("accelData", mAccelDataMapList);
-
+            dataMap.getDataMap().putString("type", kAcclType);
         }
-
-        boolean connection = mGoogleApiClient.isConnected();
-
 
         //sync the data
         PutDataRequest request = dataMap.asPutDataRequest();
         PendingResult<DataApi.DataItemResult> pendingResult = Wearable.DataApi
                 .putDataItem(mGoogleApiClient, request);
-
-
-
-
-        pendingResult.setResultCallback(new ResultCallback<DataApi.DataItemResult>() {
-            @Override
-            public void onResult(final DataApi.DataItemResult result) {
-                if(result.getStatus().isSuccess()) {
-                    Log.d("Callback", "Data item set: " + result.getDataItem());
-                } else {
-                    Log.e("Callback", "Error setting data item! :" + result.toString());
-                }
-            }
-        });
+        pendingResult.setResultCallback(this);
 
     }
 
     private DataMap buildAccelData(float [] coords) {
         DataMap accelDataMap = new DataMap();
         accelDataMap.putFloatArray("coordinates", coords);
-
 
         return accelDataMap;
     }
@@ -182,6 +199,42 @@ public class Strap implements SensorEventListener {
                     mAccelDataMapList.clear();
                 }
             }
+
+        }
+    }
+
+    class SystemInfoTask extends TimerTask {
+        Context context = null;
+
+        public void setApplicationContext(Context applicationContext) {
+            context = applicationContext;
+        }
+
+        public void run() {
+
+            PutDataMapRequest dataMap = PutDataMapRequest.create("/strap/" + new Date().toString());
+
+            Intent batteryIntent = context.registerReceiver(null, new IntentFilter(Intent.ACTION_BATTERY_CHANGED));
+            int level = batteryIntent.getIntExtra(BatteryManager.EXTRA_LEVEL, -1);
+            int scale = batteryIntent.getIntExtra(BatteryManager.EXTRA_SCALE, -1);
+            dataMap.getDataMap().putString("type", kDiagnosticType);
+            dataMap.getDataMap().putInt("battery", level);
+            dataMap.getDataMap().putLong("time", System.currentTimeMillis());
+
+            buildBasicRequest(dataMap.getDataMap());
+
+            try {
+
+                int brightness = Settings.System.getInt(context.getContentResolver(), Settings.System.SCREEN_BRIGHTNESS);
+                dataMap.getDataMap().putInt("brightness", brightness);
+            } catch (Settings.SettingNotFoundException e) {
+                Log.d("SettingsNotFound",e.getMessage());
+            }
+
+            PutDataRequest request = dataMap.asPutDataRequest();
+            PendingResult<DataApi.DataItemResult> pendingResult = Wearable.DataApi
+                    .putDataItem(mGoogleApiClient, request);
+
 
         }
     }

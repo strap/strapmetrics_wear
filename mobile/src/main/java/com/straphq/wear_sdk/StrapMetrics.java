@@ -37,7 +37,14 @@ public class StrapMetrics {
     }
 
     private String strapURL = "https://api.straphq.com/create/visit/with/";
+
+    private static final String userAgent = "WEAR/1.0";
+    private static final String eventKey = "eventName";
     //    private String strapURL = "http://192.168.2.8:8000/create/visit/with/";
+
+    private static final String kLogEventType = "logEvent";
+    private static final String kAcclType = "logAccl";
+    private static final String kDiagnosticType = "logDiagnostic";
 
     private static final float kConversionFactor = 101.971621298f;
 
@@ -48,6 +55,7 @@ public class StrapMetrics {
 
 
     private static JSONArray tmpstore = new JSONArray();
+
 
     private static StrapMetrics instance = null;
 
@@ -63,16 +71,52 @@ public class StrapMetrics {
         }
     }
 
+    private String getBaseQuery(Properties lp, String serial) {
+        return "app_id=" + lp.getProperty("appId")
+                + "&resolution=" + ((lp.getProperty("resolution").length() > 0) ?  lp.getProperty("resolution") : "")
+                + "&useragent=" + ((lp.getProperty("useragent").length() > 0) ?  lp.getProperty("useragent") : "")
+                + "&visitor_id=" + serial
+                + "&visitor_timeoffset=" + tz_offset;
+    }
+
+    private String getEventQuery(String eventName, Properties lp, String serial) {
+        String query = null;
+        query = getBaseQuery(lp, serial)
+
+                + "&action_url=" + eventName;
+
+        return query;
+    }
+
+    private String getAcclQuery(Properties lp, String serial) throws JSONException, IOException{
+        String query = getBaseQuery(lp, serial);
+
+        query = query
+                + "&action_url=" + "STRAP_API_ACCL"
+                + "&accl=" + URLEncoder.encode(tmpstore.toString(),"UTF-8")
+                + "&act=UNKNOWN";
+
+        return query;
+    }
+
+    private String getDiagnosticQuery(Properties lp, String serial, JSONObject diagnostics) throws JSONException, IOException{
+        String query = getBaseQuery(lp, serial);
+
+        query = query
+                + "&action_url=" + "STRAP_DIAG"
+                + "&cvar=" + URLEncoder.encode(diagnostics.toString(), "UTF-8");
+
+        return query;
+    }
+
     public Boolean canHandleMsg(DataEvent data) {
-
-//        Log.d("SM_MSG_HANDLER", data.getDataItem().getUri().getPathSegments().get(0));
-
         return data.getDataItem().getUri().getPathSegments().get(0).equals("strap");
     }
 
 
     public void processReceiveData(DataMap map) throws JSONException, IOException {
-        String query;
+        String query = "";
+        boolean bWasAcclRequest = false;
 
         String serial = null;
 
@@ -86,7 +130,7 @@ public class StrapMetrics {
             resolution = map.getInt("display_width") + "x" + map.getInt("display_height");
         }
         lp.put("resolution", resolution);
-        lp.put("useragent", "WEAR/1.0");
+        lp.put("useragent", userAgent);
         lp.put("appId",map.getString("appID"));
         int min_readings = 200;
 
@@ -107,29 +151,13 @@ public class StrapMetrics {
             e.printStackTrace();
         }
 
-
-        String key = "eventName";
-        if(!map.containsKey(key) || map.getString(key) == "") {
+        if(map.getString("type").equals(kAcclType)) {
             JSONArray convData = StrapMetrics.convAcclData(map);
-
             concatJSONArrays(convData);
 
             if(tmpstore.length() > min_readings) {
-
-
-                query = "app_id=" + lp.getProperty("appId")
-                        + "&resolution=" + ((lp.getProperty("resolution").length() > 0) ?  lp.getProperty("resolution") : "")
-                        + "&useragent=" + ((lp.getProperty("useragent").length() > 0) ?  lp.getProperty("useragent") : "")
-                        + "&action_url=" + "STRAP_API_ACCL"
-                        + "&visitor_id=" + serial
-                        + "&visitor_timeoffset=" + tz_offset
-                        + "&accl=" + URLEncoder.encode(tmpstore.toString(),"UTF-8")
-//                   + "&act=" + ((tmpstore.length() > 0)?tmpstore[0].act:"UNKNOWN");
-                        + "&act=UNKNOWN";
-
-                //console.log('query: ' + query);
-
-
+                query = getAcclQuery(lp, serial);
+                bWasAcclRequest = true;
 
                 try {
                     Runnable r = new PostLog(strapURL,query);
@@ -138,18 +166,13 @@ public class StrapMetrics {
                 } catch (Exception e) {
                     Log.e("POST_ERROR","ERROR with PostLog Thread: " + e.toString());
                     e.printStackTrace();
+
+                    tmpstore = new JSONArray();
                 }
-                tmpstore = new JSONArray();
             }
         }
-        else {
-
-            query = "app_id=" + lp.getProperty("appId")
-                    + "&resolution=" + ((lp.getProperty("resolution").length() > 0) ?  lp.getProperty("resolution") : "")
-                    + "&useragent=" + ((lp.getProperty("useragent").length() > 0) ?  lp.getProperty("useragent") : "")
-                    + "&visitor_id=" + serial
-                    + "&visitor_timeoffset=" + tz_offset
-                    + "&action_url=" + map.getString(key);
+        else if(map.getString("type").equals(kLogEventType)){
+            query = getEventQuery(map.getString(eventKey), lp, serial);
 
             try {
                 Runnable r = new PostLog(strapURL,query);
@@ -160,11 +183,29 @@ public class StrapMetrics {
                 e.printStackTrace();
             }
         }
+        else if(map.getString("type").equals(kDiagnosticType)) {
+            JSONObject diagnostics = new JSONObject();
+            diagnostics.put("brightness", map.getInt("brightness"));
+            diagnostics.put("battery", map.getInt("battery"));
+            diagnostics.put("time", map.getLong("time"));
+
+            query = getDiagnosticQuery(lp, serial, diagnostics);
+
+            try {
+                Runnable r = new PostLog(strapURL,query);
+                new Thread(r).start();
+
+            } catch (Exception e) {
+                Log.e("POST_ERROR","ERROR with PostLog Thread: " + e.toString());
+                e.printStackTrace();
+            }
+        }
+
     }
 
     public static JSONArray convAcclData(DataMap data) throws JSONException {
         JSONArray convData = new JSONArray();
-        //JB_TODO finish this
+
         ArrayList<DataMap> accelDataEvents = data.getDataMapArrayList("accelData");
 
         for(int i = 0; i < accelDataEvents.size(); i++) {
@@ -185,53 +226,6 @@ public class StrapMetrics {
 
         }
 
-
-
-//        int key = KEY_OFFSET + T_TIME_BASE;
-//        long time_base = Long.parseLong(data.getString(key));
-//        data.remove(key);
-//
-//        for(int i = 0; i < strap_api_num_samples; i++) {
-//            int point = KEY_OFFSET + (10 * i);
-//
-//            JSONObject ad = new JSONObject();
-//            // ts key
-//            key = point + T_TS;
-//            ad.put("ts", (data.getInteger(key) + time_base));
-//            data.remove(key);
-//
-//            // x key
-//            key = point + T_X;
-//            ad.put("x", data.getInteger(key));
-//            data.remove(key);
-//
-//            // y key
-//            key = point + T_Y;
-//            ad.put("y", data.getInteger(key));
-//            data.remove(key);
-//
-//            // z key
-//            key = point + T_Z;
-//            ad.put("z", data.getInteger(key));
-//            data.remove(key);
-//
-//            // did_vibrate key
-//            key = point + T_DID_VIBRATE;
-//            ad.put("vib", (data.getString(key) == "1")?true:false);
-//            data.remove(key);
-//
-//            ad.put("act", data.getString(KEY_OFFSET + T_ACTIVITY));
-//            data.remove(key);
-//
-//            convData.put(ad);
-//        }
-
         return convData;
     }
-
-
-//    public void postLog() throws IOException {
-//
-//    }
-//
 }
