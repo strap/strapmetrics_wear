@@ -56,28 +56,6 @@ public class MainActivity extends Activity {
         mGoogleApiClient.connect();
 
         PendingResult<DataItemBuffer> items = Wearable.DataApi.getDataItems(mGoogleApiClient);
-
-        /*items.setResultCallback( new ResultCallback<DataItemBuffer>() {
-            @Override
-            public void onResult(DataItemBuffer dataItems) {
-                for(int i=0; i< dataItems.getCount(); i++) {
-                    DataItem x = dataItems.get(i);
-                    Wearable.DataApi.deleteDataItems(mGoogleApiClient, x.getUri());
-                }
-            }
-        });*/
-
-        StrapMetrics strap = new StrapMetrics();
-
-        /*
-        try {
-            strap.processReceiveData();
-        } catch (JSONException e) {
-            e.printStackTrace();
-        } catch (IOException e) {
-            e.printStackTrace();
-        }*/
-        //strap.processReceiveData();
     }
 
 
