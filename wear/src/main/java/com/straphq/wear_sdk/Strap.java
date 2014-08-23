@@ -70,11 +70,11 @@ public class Strap implements SensorEventListener, ResultCallback<DataApi.DataIt
 
 
     //TODO finish singleton implementation
-    public static Strap getInstance() {
+    /*public static Strap getInstance() {
         return strapManager;
-    }
+    }*/
 
-    Strap(GoogleApiClient apiClient, Context applicationContext, String strapAppID) {
+    public Strap(GoogleApiClient apiClient, Context applicationContext, String strapAppID) {
 
         //Singleton reference TODO
         strapManager = this;
@@ -130,7 +130,7 @@ public class Strap implements SensorEventListener, ResultCallback<DataApi.DataIt
         buildBasicRequest(dataMap.getDataMap());
         dataMap.getDataMap().putString("type", "logEvent");
 
-        if(eventName != "") {
+        if(!eventName.equals("") ) {
             dataMap.getDataMap().putString("eventName", eventName);
             dataMap.getDataMap().putString("type", kLogEventType);
         } else {

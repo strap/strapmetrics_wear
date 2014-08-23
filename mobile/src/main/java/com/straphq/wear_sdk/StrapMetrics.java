@@ -155,7 +155,7 @@ public class StrapMetrics {
             JSONArray convData = StrapMetrics.convAcclData(map);
             concatJSONArrays(convData);
 
-            if(tmpstore.length() > min_readings) {
+            if(tmpstore.length() >= min_readings) {
                 query = getAcclQuery(lp, serial);
                 bWasAcclRequest = true;
 
@@ -166,7 +166,6 @@ public class StrapMetrics {
                 } catch (Exception e) {
                     Log.e("POST_ERROR","ERROR with PostLog Thread: " + e.toString());
                     e.printStackTrace();
-
 
                 }
                 tmpstore = new JSONArray();
