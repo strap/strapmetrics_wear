@@ -1,0 +1,7 @@
+PROJECT_NAME = "StrapMetrics"
+PROJECT_BRIEF = ""
+OUTPUT_DIRECTORY = "doc"
+INPUT = README.md wear/src mobile/src
+USE_MDFILE_AS_MAINPAGE = README.md
+FILE_PATTERNS = *.java
+RECURSIVE = YES
