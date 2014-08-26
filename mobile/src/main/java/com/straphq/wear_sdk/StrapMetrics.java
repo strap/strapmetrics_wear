@@ -61,6 +61,10 @@ public class StrapMetrics {
 
     private static StrapMetrics instance = null;
 
+
+    /**
+     * Starts StrapMetrics on the phone.
+     */
     public StrapMetrics() {
 
     }
@@ -111,11 +115,20 @@ public class StrapMetrics {
         return query;
     }
 
+    /**
+     * Checks to see if StrapMetrics can handle the data event from Wear.
+     * @param data The data event received from the android wear device
+     * @return Whether or not StrapMetrics can handle the data event
+     */
     public Boolean canHandleMsg(DataEvent data) {
         return data.getDataItem().getUri().getPathSegments().get(0).equals("strap");
     }
 
 
+    /**
+     * Processes a StrapMetrics DataMap.
+     * @param map The data map from an event that StrapMetrics can handle.
+     */
     public void processReceiveData(DataMap map) throws JSONException, IOException {
         String query = "";
         boolean bWasAcclRequest = false;
@@ -205,7 +218,7 @@ public class StrapMetrics {
 
     }
 
-    public static JSONArray convAcclData(DataMap data) throws JSONException {
+    private static JSONArray convAcclData(DataMap data) throws JSONException {
         JSONArray convData = new JSONArray();
 
         ArrayList<DataMap> accelDataEvents = data.getDataMapArrayList("accelData");

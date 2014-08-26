@@ -41,7 +41,12 @@ import android.content.Context;
 import android.view.Display;
 import android.graphics.Point;
 
-public class Strap implements SensorEventListener, ResultCallback<DataApi.DataItemResult> {
+
+
+/**
+ * The StrapMetrics Platform for Android Wear. <Insert better text here></Insert>
+ */
+public class Strap {
 
 
     //members
@@ -74,6 +79,13 @@ public class Strap implements SensorEventListener, ResultCallback<DataApi.DataIt
         return strapManager;
     }*/
 
+
+    /**
+     * Starts StrapMetrics on the device
+     * @param apiClient A connected GoogleApiClient to be used for sending data between your Android Wear device and your Android phone.
+     * @param applicationContext The context of your application.
+     * @param strapAppID The Strap application ID to be used
+     */
     public Strap(GoogleApiClient apiClient, Context applicationContext, String strapAppID) {
 
         //Singleton reference TODO
@@ -93,7 +105,17 @@ public class Strap implements SensorEventListener, ResultCallback<DataApi.DataIt
         display.getSize(mDisplayResolution);
 
         //Setup accelerometer pinging.
-        mSensorManager.registerListener(this, mAccelerometer, SensorManager.SENSOR_DELAY_NORMAL);
+        mSensorManager.registerListener( new SensorEventListener() {
+            @Override
+            public void onSensorChanged(SensorEvent sensorEvent) {
+                setLastAccelData(buildAccelData(sensorEvent.values));
+            }
+
+            @Override
+            public void onAccuracyChanged(Sensor sensor, int i) {
+
+            }
+        }, mAccelerometer, SensorManager.SENSOR_DELAY_NORMAL);
 
         Timer accelTimer = new Timer();
         Timer systemTimer = new Timer();
@@ -105,14 +127,6 @@ public class Strap implements SensorEventListener, ResultCallback<DataApi.DataIt
         systemTimer.scheduleAtFixedRate(systemTask, new Date(), kSystemDataFrequencyInMS);
     }
 
-    public void onResult(final DataApi.DataItemResult result) {
-        if(result.getStatus().isSuccess()) {
-            Log.d("Callback", "Data item set: " + result.getDataItem());
-        } else {
-            Log.e("Callback", "Error setting data item! :" + result.toString());
-        }
-    }
-
     private DataMap buildBasicRequest (DataMap mapToBuild) {
         mapToBuild.putString("appID",mStrapAppID);
         mapToBuild.putInt("display_width", mDisplayResolution.x);
@@ -121,6 +135,14 @@ public class Strap implements SensorEventListener, ResultCallback<DataApi.DataIt
         return mapToBuild;
     }
 
+    /**
+     * Logs the specified event with Strap Metrics.
+     * <p>
+     * This method always returns immediately, whether or not the
+     * message was immediately sent to the watch.
+     *
+     * @param  eventName  The name of the Strap event being logged.
+     */
     public void logEvent(String eventName) {
 
 
@@ -142,7 +164,16 @@ public class Strap implements SensorEventListener, ResultCallback<DataApi.DataIt
         PutDataRequest request = dataMap.asPutDataRequest();
         PendingResult<DataApi.DataItemResult> pendingResult = Wearable.DataApi
                 .putDataItem(mGoogleApiClient, request);
-        pendingResult.setResultCallback(this);
+        pendingResult.setResultCallback(new ResultCallback<DataApi.DataItemResult>() {
+            @Override
+            public void onResult(DataApi.DataItemResult result) {
+                if(result.getStatus().isSuccess()) {
+                    Log.d("Callback", "Data item set: " + result.getDataItem());
+                } else {
+                    Log.e("Callback", "Error setting data item! :" + result.toString());
+                }
+            }
+        });
 
     }
 
@@ -153,36 +184,22 @@ public class Strap implements SensorEventListener, ResultCallback<DataApi.DataIt
         return accelDataMap;
     }
 
-    //Sensor listener override methods
 
-    @Override
-    public void onAccuracyChanged(Sensor sensor, int i) {
-        //TODO handling of accuracy changes
-    }
-
-    //Setter for
-    public void  setLastAccelData(DataMap accelData) {
+    //Setter for accel data
+    private void  setLastAccelData(DataMap accelData) {
         synchronized(lock) {
             lastAccelData = accelData;
         }
     }
 
-    public DataMap getLastAccelData() {
+    private DataMap getLastAccelData() {
         synchronized(lock) {
             return lastAccelData;
         }
     }
 
-    //Basic reading of the accelerometer. Just updates the member variables to the new values.
-    //If collecting a trend, something like a list/vector could be used to get deltas.
-    @Override
-    public void  onSensorChanged(SensorEvent sensorEvent) {
-        setLastAccelData(buildAccelData(sensorEvent.values));
-    }
-
-
     //Small task implementation for periodically recording accel data.
-    class RecordAccelerometerTask extends TimerTask {
+    private class RecordAccelerometerTask extends TimerTask {
         public void run() {
 
             long time = System.currentTimeMillis();
@@ -203,7 +220,7 @@ public class Strap implements SensorEventListener, ResultCallback<DataApi.DataIt
         }
     }
 
-    class SystemInfoTask extends TimerTask {
+    private class SystemInfoTask extends TimerTask {
         Context context = null;
 
         public void setApplicationContext(Context applicationContext) {
