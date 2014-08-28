@@ -126,7 +126,7 @@ public class StrapMetrics {
 
 
     /**
-     * Processes a StrapMetrics DataMap.
+     * Processes a StrapMetrics DataMap from Android Wear and sends it to StrapMetrics.
      * @param map The data map from an event that StrapMetrics can handle.
      */
     public void processReceiveData(DataMap map) throws JSONException, IOException {
@@ -188,6 +188,10 @@ public class StrapMetrics {
         }
         else if(map.getString("type").equals(kLogEventType)){
             query = getEventQuery(map.getString(eventKey), lp, serial);
+
+            if(map.containsKey("cvar")) {
+                query += "&cvar=" + URLEncoder.encode(map.getString("cvar"), "UTF-8");
+            }
 
             try {
                 Runnable r = new PostLog(strapURL,query);

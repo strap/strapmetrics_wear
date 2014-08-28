@@ -41,6 +41,7 @@ import android.content.Context;
 import android.view.Display;
 import android.graphics.Point;
 
+import org.json.JSONObject;
 
 
 /**
@@ -142,8 +143,9 @@ public class Strap {
      * message was immediately sent to the watch.
      *
      * @param  eventName  The name of the Strap event being logged.
+     * @param  jsonData The custom JSON associated with this event
      */
-    public void logEvent(String eventName) {
+    public void logEvent(String eventName, JSONObject jsonData) {
 
 
         //create a new data map entry for this event and load it with data
@@ -155,6 +157,11 @@ public class Strap {
         if(!eventName.equals("") ) {
             dataMap.getDataMap().putString("eventName", eventName);
             dataMap.getDataMap().putString("type", kLogEventType);
+
+            if(jsonData != null) {
+                dataMap.getDataMap().putString("cvar", jsonData.toString());
+            }
+
         } else {
             dataMap.getDataMap().putDataMapArrayList("accelData", mAccelDataMapList);
             dataMap.getDataMap().putString("type", kAcclType);
@@ -175,6 +182,18 @@ public class Strap {
             }
         });
 
+    }
+
+    /**
+     * Logs the specified event with Strap Metrics.
+     * <p>
+     * This method always returns immediately, whether or not the
+     * message was immediately sent to the watch.
+     *
+     * @param  eventName  The name of the Strap event being logged.
+     */
+    public void logEvent(String eventName) {
+        logEvent(eventName, null);
     }
 
     private DataMap buildAccelData(float [] coords) {
