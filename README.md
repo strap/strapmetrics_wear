@@ -6,27 +6,50 @@ Strap Metrics is a wearable analytics platform for developers. This repository c
 ##Strap Metrics for Android Wear SDK Quick Start Guide
 
 
-We use a ```WearableListenerService``` to communicate data from the watch to the phone. As a developer, you simply import the Strap objects, initialize, and send some events (optional). If you just initialize and don't send events, we'll send app diagnostics and sensor data automatically. 
+We use a ```WearableListenerService``` to communicate data from the watch to the phone. As a developer, you simply import the Strap objects, initialize, and send some events (optional). If you just initialize and don't send events, we'll send app diagnostics and sensor data automatically.
 
 Getting started with the Strap Metrics SDK is pretty straightforward. These steps shouldn't take more than 15-20 minutes. We're assuming you use <a href="https://developer.android.com/sdk/installing/studio.html">Android Studio</a>. You should probably also setup <a href="https://developer.android.com/training/wearables/apps/bt-debugging.html">Bluetooth Debugging</a> if you haven't already.
 
 ---
 
 1. Login to the <a href="http://www.straphq.com/login">Strap Dashboard</a> and create an app. You'll need your App ID handy for the next step.
-2. Add StrapMetrics libs to your project:
+2. Add StrapMetrics libs to your projects libs folder:
     * Mobile
         - Add strapmetrics-mobile.jar to your mobile module.
     * Wear
         - Add strapmetrics-wear.jar to your wear module.
+3. Gradle configuration
+    * Mobile
+        - Add the "libs" folder as a flat repository.
+              repositories {
+                  flatDir {
+                      dirs 'libs'
+                  }
+              }
+        - Add the strapmetrics-mobile.aar file as a compile target
+              dependencies {
+                  compile(name: 'strapmetrics-mobile', ext: 'aar')
+              }
+    * Wear
+        - Add the "libs" folder as a flat repository.
+              repositories {
+                  flatDir {
+                      dirs 'libs'
+                  }
+              }
+        - Add the strapmetrics-mobile.aar file as a compile target
+              dependencies {
+                  compile(name: 'strapmetrics-wear', ext: 'aar')
+              }
 3. Import statements
 
-    * Mobile 
-  
-            import com.straphq.wear_sdk_mobile 
-        
-    * Wear   
-    
-            import com.straphq.wear_sdk_wear 
+    * Mobile
+
+            import com.straphq.wear_sdk_mobile
+
+    * Wear
+
+            import com.straphq.wear_sdk_wear
 
 
 4. Instantiate StrapMetrics
@@ -83,7 +106,7 @@ Getting started with the Strap Metrics SDK is pretty straightforward. These step
                 }
             }
 
-        
+
 
 
     * _Wear_ - To instantiate Strap you'll need to create a GoogleApiClient, have access to the Context, and have a valid appID to pass. Once you've created the Strap metrics, you can use the ```logEvent('/event-name/foo')``` function to log events. We'll be rolling out more functions in the coming weeks.
@@ -152,5 +175,4 @@ Getting started with the Strap Metrics SDK is pretty straightforward. These step
             }
 
 
-If you made it this far, congrats! You've successfully integrated Strap into your Android Wear application. We'll start crunching the numbers as data starts to flow into Strap, and you'll be seeing <a href="https://www.straphq.com/login">reports on the dashboard</a> in a few minutes. We have tested Strap in a variety of app configurations, but your feedback is extremely important to us in this beta period! If you have any questions, concerns, or problems with Strap Metrics, please let us know. You can open an issue on GitHub, visit our community support portal at http://strap.uservoice.com, email us at support@straphq.com, or tweet us @getstrap. 
-
+If you made it this far, congrats! You've successfully integrated Strap into your Android Wear application. We'll start crunching the numbers as data starts to flow into Strap, and you'll be seeing <a href="https://www.straphq.com/login">reports on the dashboard</a> in a few minutes. We have tested Strap in a variety of app configurations, but your feedback is extremely important to us in this beta period! If you have any questions, concerns, or problems with Strap Metrics, please let us know. You can open an issue on GitHub, visit our community support portal at http://strap.uservoice.com, email us at support@straphq.com, or tweet us @getstrap.
