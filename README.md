@@ -32,15 +32,15 @@ Getting started with the Strap Metrics SDK is pretty straightforward. These step
               }
     * Wear
         - Add the "libs" folder as a flat repository.
-              repositories {
-                  flatDir {
-                      dirs 'libs'
-                  }
-              }
+                repositories {
+                    flatDir {
+                        dirs 'libs'
+                    }
+                }
         - Add the strapmetrics-mobile.aar file as a compile target
-              dependencies {
-                  compile(name: 'strapmetrics-wear', ext: 'aar')
-              }
+                dependencies {
+                    compile(name: 'strapmetrics-wear', ext: 'aar')
+                }
 3. Import statements
 
     * Mobile
