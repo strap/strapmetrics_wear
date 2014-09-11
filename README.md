@@ -21,23 +21,27 @@ Getting started with the Strap Metrics SDK is pretty straightforward. These step
 3. Gradle configuration
     * Mobile
         - Add the "libs" folder as a flat repository.
+        
               repositories {
                   flatDir {
                       dirs 'libs'
                   }
               }
         - Add the strapmetrics-mobile.aar file as a compile target
+
               dependencies {
                   compile(name: 'strapmetrics-mobile', ext: 'aar')
               }
     * Wear
         - Add the "libs" folder as a flat repository.
+
                 repositories {
                     flatDir {
                         dirs 'libs'
                     }
                 }
         - Add the strapmetrics-mobile.aar file as a compile target
+
                 dependencies {
                     compile(name: 'strapmetrics-wear', ext: 'aar')
                 }
