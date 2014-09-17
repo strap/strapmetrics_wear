@@ -7,6 +7,7 @@ import java.io.InputStreamReader;
 import java.net.MalformedURLException;
 import java.net.ProtocolException;
 import java.net.URL;
+import android.util.Log;
 
 import javax.net.ssl.HttpsURLConnection;
 
@@ -49,11 +50,6 @@ class PostLog implements Runnable {
         conn.setDoOutput(true);
 
 
-//	        List<NameValuePair> params = new ArrayList<NameValuePair>();
-//	        params.add(new BasicNameValuePair("firstParam", paramValue1));
-//	        params.add(new BasicNameValuePair("secondParam", paramValue2));
-//	        params.add(new BasicNameValuePair("thirdParam", paramValue3));
-        //
         DataOutputStream wr = null;
         try {
             wr = new DataOutputStream(conn.getOutputStream());
@@ -61,26 +57,29 @@ class PostLog implements Runnable {
             // TODO Auto-generated catch block
             e.printStackTrace();
         }
-//	        BufferedWriter writer = new BufferedWriter(
-//	                new OutputStreamWriter(os, "UTF-8"));
-        try {
-            wr.writeBytes(this.query);
-        } catch (IOException e) {
-            // TODO Auto-generated catch block
-            e.printStackTrace();
-        }
 
-        try {
-            wr.flush();
-        } catch (IOException e) {
-            // TODO Auto-generated catch block
-            e.printStackTrace();
-        }
-        try {
-            wr.close();
-        } catch (IOException e) {
-            // TODO Auto-generated catch block
-            e.printStackTrace();
+        if(wr != null) {
+            try {
+                wr.writeBytes(this.query);
+            } catch (IOException e) {
+                // TODO Auto-generated catch block
+                e.printStackTrace();
+            } catch (NullPointerException e) {
+                Log.d("STRAP", "No Network Connection");
+            }
+
+            try {
+                wr.flush();
+            } catch (IOException e) {
+                // TODO Auto-generated catch block
+                e.printStackTrace();
+            }
+            try {
+                wr.close();
+            } catch (IOException e) {
+                // TODO Auto-generated catch block
+                e.printStackTrace();
+            }
         }
 
         int responseCode = 0;
