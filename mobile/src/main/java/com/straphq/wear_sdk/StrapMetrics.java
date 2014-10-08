@@ -42,6 +42,7 @@ public class StrapMetrics {
 
     private static final String userAgent = "WEAR/1.0";
     private static final String eventKey = "eventName";
+
     //    private String strapURL = "http://192.168.2.8:8000/create/visit/with/";
 
     private static final String kLogEventType = "logEvent";
@@ -49,6 +50,9 @@ public class StrapMetrics {
     private static final String kDiagnosticType = "logDiagnostic";
 
     private static final float kConversionFactor = 101.971621298f;
+
+    private String resolution = "UNK";
+    private String appId = "";
 
     Calendar mCalendar = new GregorianCalendar();
     TimeZone mTimeZone = mCalendar.getTimeZone();
@@ -125,6 +129,27 @@ public class StrapMetrics {
     }
 
 
+
+    //To be used by Strapkit. Logs events from the phone
+    public void logEvent(String eventName, JSONObject cvarData) {
+        DataMap map = new DataMap();
+        map.putString("type", kLogEventType);
+        if(cvarData != null) {
+            map.putString("cvar", cvarData.toString());
+            map.putString(eventKey, eventName);
+        }
+        try {
+            processReceiveData(map);
+        } catch (JSONException e) {
+
+        } catch (IOException e) {
+
+        }
+    }
+
+    public void initFromPhone(String appId) {
+        this.appId = appId;
+    }
     /**
      * Processes a StrapMetrics DataMap from Android Wear and sends it to StrapMetrics.
      * @param map The data map from an event that StrapMetrics can handle.
@@ -140,13 +165,16 @@ public class StrapMetrics {
        // DataMap map = dataMapItem.getDataMap();
 
         final Properties lp = new Properties();
-        String resolution = "UNK";
         if(map.containsKey("display_width") && map.containsKey("display_height")) {
             resolution = map.getInt("display_width") + "x" + map.getInt("display_height");
+
+        }
+        if(map.containsKey("appId") && !map.getString("appId").equals("")) {
+            appId = map.getString("appId");
         }
         lp.put("resolution", resolution);
         lp.put("useragent", userAgent);
-        lp.put("appId",map.getString("appID"));
+        lp.put("appId",appId);
         int min_readings = 200;
 
         // using Android phone's serial no for the visitor id right now
