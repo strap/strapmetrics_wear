@@ -130,6 +130,8 @@ public class StrapMetrics {
 
 
 
+
+
     //To be used by Strapkit. Logs events from the phone
     public void logEvent(String eventName, JSONObject cvarData) {
         DataMap map = new DataMap();

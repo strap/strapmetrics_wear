@@ -57,6 +57,10 @@ public class Strap {
     private String mStrapAppID = null;
     private Point mDisplayResolution = null;
     private ArrayList<DataMap> mAccelDataMapList = null;
+    private RecordAccelerometerTask recordTask = null;
+    private Timer accelTimer = new Timer();
+    private Timer systemTimer = new Timer();
+
 
     private static Strap strapManager = null;
     private DataMap lastAccelData;
@@ -118,13 +122,12 @@ public class Strap {
             }
         }, mAccelerometer, SensorManager.SENSOR_DELAY_NORMAL);
 
-        Timer accelTimer = new Timer();
-        Timer systemTimer = new Timer();
-        RecordAccelerometerTask recordTask = new RecordAccelerometerTask();
+
+        recordTask = new RecordAccelerometerTask();
         SystemInfoTask systemTask = new SystemInfoTask();
         systemTask.setApplicationContext(applicationContext);
 
-        accelTimer.scheduleAtFixedRate(recordTask, new Date(), kAccelerometerFrequencyInMS);
+        accelTimer.scheduleAtFixedRate(recordTask, 0, kAccelerometerFrequencyInMS);
         systemTimer.scheduleAtFixedRate(systemTask, new Date(), kSystemDataFrequencyInMS);
     }
 
@@ -134,6 +137,15 @@ public class Strap {
         mapToBuild.putInt("display_height", mDisplayResolution.y);
 
         return mapToBuild;
+    }
+
+    public void setShouldLogAccel(Boolean shouldLog) {
+        if(!shouldLog) {
+            accelTimer.cancel();
+            accelTimer.purge();
+        } else {
+            accelTimer.scheduleAtFixedRate(recordTask, 0, kAccelerometerFrequencyInMS);
+        }
     }
 
     /**
