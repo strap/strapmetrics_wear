@@ -15,7 +15,7 @@ import android.view.WindowManager;
 import android.widget.TextView;
 
 import com.google.android.gms.common.ConnectionResult;
-import com.google.android.gms.common.api.a;
+
 import com.google.android.gms.wearable.*;
 import com.google.android.gms.common.api.*;
 import com.google.android.gms.common.api.GoogleApiClient.ConnectionCallbacks;
@@ -36,6 +36,8 @@ import com.google.android.gms.common.api.GoogleApiClient.OnConnectionFailedListe
 import java.util.Timer;
 import java.util.TimerTask;
 import java.util.concurrent.TimeUnit;
+import android.os.Handler;
+import java.util.logging.LogRecord;
 
 import android.content.Context;
 import android.view.Display;
@@ -58,8 +60,7 @@ public class Strap {
     private Point mDisplayResolution = null;
     private ArrayList<DataMap> mAccelDataMapList = null;
     private RecordAccelerometerTask recordTask = null;
-    private Timer accelTimer = new Timer();
-    private Timer systemTimer = new Timer();
+    private SystemInfoTask systemTask = null;
 
 
     private static Strap strapManager = null;
@@ -78,6 +79,9 @@ public class Strap {
     private static final String kAcclType = "logAccl";
     private static final String kDiagnosticType = "logDiagnostic";
 
+    private Handler accelHandler;
+    private Handler systemHandler;
+
 
     //TODO finish singleton implementation
     /*public static Strap getInstance() {
@@ -93,6 +97,8 @@ public class Strap {
      */
     public Strap(GoogleApiClient apiClient, Context applicationContext, String strapAppID) {
 
+        accelHandler = new Handler();
+        systemHandler = new Handler();
         //Singleton reference TODO
         strapManager = this;
 
@@ -124,11 +130,11 @@ public class Strap {
 
 
         recordTask = new RecordAccelerometerTask();
-        SystemInfoTask systemTask = new SystemInfoTask();
+        systemTask = new SystemInfoTask();
         systemTask.setApplicationContext(applicationContext);
 
-        accelTimer.scheduleAtFixedRate(recordTask, 0, kAccelerometerFrequencyInMS);
-        systemTimer.scheduleAtFixedRate(systemTask, new Date(), kSystemDataFrequencyInMS);
+        systemHandler.postDelayed(systemTask, kSystemDataFrequencyInMS);
+        accelHandler.postDelayed(recordTask, kAccelerometerFrequencyInMS);
     }
 
     private DataMap buildBasicRequest (DataMap mapToBuild) {
@@ -141,10 +147,19 @@ public class Strap {
 
     public void setShouldLogAccel(Boolean shouldLog) {
         if(!shouldLog) {
-            accelTimer.cancel();
-            accelTimer.purge();
+            accelHandler.removeCallbacks(recordTask);
         } else {
-            accelTimer.scheduleAtFixedRate(recordTask, 0, kAccelerometerFrequencyInMS);
+            accelHandler.removeCallbacks(recordTask);
+            accelHandler.postDelayed(recordTask, kAccelerometerFrequencyInMS);
+        }
+    }
+
+    public void setShouldLogDiagnostics(Boolean shouldLog) {
+        if(!shouldLog) {
+            systemHandler.removeCallbacks(systemTask);
+        } else {
+            systemHandler.removeCallbacks(systemTask);
+            systemHandler.postDelayed(systemTask, kAccelerometerFrequencyInMS);
         }
     }
 
@@ -158,7 +173,6 @@ public class Strap {
      * @param  jsonData The custom JSON associated with this event
      */
     public void logEvent(String eventName, JSONObject jsonData) {
-
 
         //create a new data map entry for this event and load it with data
         PutDataMapRequest dataMap = PutDataMapRequest.create("/strap/" + new Date().toString());
@@ -196,6 +210,8 @@ public class Strap {
 
     }
 
+
+
     /**
      * Logs the specified event with Strap Metrics.
      * <p>
@@ -230,7 +246,7 @@ public class Strap {
     }
 
     //Small task implementation for periodically recording accel data.
-    private class RecordAccelerometerTask extends TimerTask {
+    private class RecordAccelerometerTask implements Runnable {
         public void run() {
 
             long time = System.currentTimeMillis();
@@ -248,10 +264,12 @@ public class Strap {
                 }
             }
 
+            accelHandler.postDelayed(this, kAccelerometerFrequencyInMS);
+
         }
     }
 
-    private class SystemInfoTask extends TimerTask {
+    private class SystemInfoTask implements Runnable {
         Context context = null;
 
         public void setApplicationContext(Context applicationContext) {
@@ -282,6 +300,8 @@ public class Strap {
             PutDataRequest request = dataMap.asPutDataRequest();
             PendingResult<DataApi.DataItemResult> pendingResult = Wearable.DataApi
                     .putDataItem(mGoogleApiClient, request);
+
+            systemHandler.postDelayed(this, kSystemDataFrequencyInMS);
 
 
         }
