@@ -138,7 +138,7 @@ public class Strap {
     }
 
     private DataMap buildBasicRequest (DataMap mapToBuild) {
-        mapToBuild.putString("appID",mStrapAppID);
+        mapToBuild.putString("appId",mStrapAppID);
         mapToBuild.putInt("display_width", mDisplayResolution.x);
         mapToBuild.putInt("display_height", mDisplayResolution.y);
 
